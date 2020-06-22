@@ -43,7 +43,7 @@ class JigsawPuzzleComponent implements OnInit {
   }
 
   void startRenderer() {
-    _puzzle = JigsawPuzzle(100, image.width, image.height);
+    _puzzle = JigsawPuzzle(2000, image.width, image.height);
     canvas.onMouseMove.listen(mouseMove);
     canvas.onMouseWheel.listen(mouseWheel);
     canvas.onMouseDown.listen(mouseDown);
@@ -96,15 +96,20 @@ class JigsawPuzzleComponent implements OnInit {
     canvas.height = html.window.innerHeight;
 
     var context = canvas.context2D;
+    context.restore();
     context.fillStyle = "black";
     context.fillRect(0, 0, canvas.width, canvas.height);
-    context.scale(_zoom, _zoom);
-    context.translate(viewOffset.x, viewOffset.y);
 
-    var canvasRectangle = Rectangle(viewOffset.x, viewOffset.y, canvas.width * _zoom, canvas.height * _zoom);
+    var canvasRectangle = Rectangle(viewOffset.x, viewOffset.y,
+        canvas.width / _zoom, canvas.height / _zoom);
+
+
+    context.scale(_zoom, _zoom);
+    context.translate(-viewOffset.x, -viewOffset.y);
+
 
     context.fillStyle = "gray";
-    context.fillRect(0, 0, _puzzle.imageWidth*_zoom, _puzzle.imageHeight*_zoom);
+    context.fillRect(0, 0, _puzzle.imageWidth, _puzzle.imageHeight);
 
     var drawCalls = 2;
     var startTime = DateTime.now();
@@ -134,8 +139,11 @@ class JigsawPuzzleComponent implements OnInit {
       drawCalls++;
     }
 
-    context.scale(1, 1);
-    context.translate(-viewOffset.x,-viewOffset.y);
+    context.strokeStyle = "red";
+    context.strokeRect(canvasRectangle.left, canvasRectangle.top,
+    canvasRectangle.width, canvasRectangle.height);
+
+    context.restore();
 
     context.font = "30px Arial";
     context.fillStyle = "green";
@@ -144,6 +152,8 @@ class JigsawPuzzleComponent implements OnInit {
     context.fillText('Frame Count: ${frameCount}', 100, 130);
     var renderTime = DateTime.now().millisecondsSinceEpoch - startTime.millisecondsSinceEpoch;
     context.fillText('Render Time: ${renderTime}', 100, 160);
+    context.fillText('View Offset: ${viewOffset.x}, ${viewOffset.y}', 100, 190);
+    context.fillText('Zoom: ${_zoom}', 100, 220);
     frameCount++;
 
     html.window.requestAnimationFrame(renderLoop);
@@ -154,7 +164,7 @@ class JigsawPuzzleComponent implements OnInit {
 //    return Point(p.x * _zoom,p.y * _zoom);
 //  }
   Point unScalePoint(Point p) {
-    return Point((p.x / _zoom) - viewOffset.x, (p.y / _zoom) - viewOffset.y );
+    return Point((p.x / _zoom) + viewOffset.x, (p.y / _zoom) + viewOffset.y );
   }
 //
 //  Rectangle scaleRectangle(Rectangle r) {

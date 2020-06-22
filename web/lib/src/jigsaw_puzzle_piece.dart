@@ -13,15 +13,21 @@ class JigsawPuzzlePiece {
   int sourceOffsetX, sourceOffsetY, sourceHeight, sourceWidth;
   Point piece;
   int get index => (piece.x * puzzle.height) + piece.y;
-  num displayOffsetX, displayOffsetY;
+  Point _displayOffset;
+  Point get displayOffset => _displayOffset;
+  set displayOffset(Point p) {
+    _displayOffset = p;
+    _displayRectangle = null;
+  }
   bool selected = false;
   int zIndex;
 
   Rectangle _sourceRectangle, _displayRectangle;
   Rectangle get sourceRectangle => _sourceRectangle ??=
       Rectangle(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
+
   Rectangle get displayRectangle => _displayRectangle ??=
-      Rectangle(displayOffsetX, displayOffsetY, sourceWidth, sourceHeight);
+      Rectangle(displayOffset.x, displayOffset.y, sourceWidth, sourceHeight);
 
   JigsawPuzzlePiece get leftNeighbor => piece.x > 0 ? puzzle.pieces[index - 1] : null;
   JigsawPuzzlePiece get rightNeighbor =>
@@ -39,16 +45,9 @@ class JigsawPuzzlePiece {
     sourceOffsetY = (sourceHeight * piece.y).floor();
     zIndex = index;
 
-    if (offsetX == -1) {
-      displayOffsetX = sourceOffsetX;
-    } else {
-      displayOffsetX = offsetX;
-    }
-    if (offsetY == -1) {
-      displayOffsetY = sourceOffsetY;
-    } else {
-      displayOffsetY = offsetY;
-    }
+
+    displayOffset = Point(offsetX == -1 ? sourceOffsetX : offsetX,offsetY == -1 ? sourceOffsetY : offsetY);
+
   }
   bool containsPoint(Point p)=>
       displayRectangle.containsPoint(p);

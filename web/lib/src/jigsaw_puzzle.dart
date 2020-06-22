@@ -11,6 +11,7 @@ class JigsawPuzzle {
   int width, height, count;
   num aspect;
   List<JigsawPuzzlePiece> pieces;
+  JigsawPuzzlePiece selectedPiece;
 
   JigsawPuzzle(this.count, this.imageWidth, this.imageHeight)
    {
@@ -46,20 +47,23 @@ class JigsawPuzzle {
   }
 
   void selectPieceAt(Point p) {
-    var piece = findPiece(p);
+    selectedPiece = findPiece(p);
     var selectedIndex = -1;
-    if(piece!=null) {
-      if(piece.selected) {
+    if(selectedPiece!=null) {
+      if(selectedPiece.selected) {
         return;
       }
-      selectedIndex = piece.index;
+      selectedIndex = selectedPiece.index;
     }
 
     for(var i = 0; i < pieces.length; i++) {
       pieces[i].selected = pieces[i].index==selectedIndex;
     }
+  }
 
-
+  void bringPieceToTop(JigsawPuzzlePiece piece) {
+    pieces.remove(piece);
+    pieces.add(piece);
   }
 
 }

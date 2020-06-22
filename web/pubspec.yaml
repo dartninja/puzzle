@@ -11,6 +11,7 @@ dependencies:
   angular_components: ^0.13.0+1
   stagexl: ^1.4.4
   logging: any
+  vector_math: any
 
 dev_dependencies:
   angular_test: ^2.3.0

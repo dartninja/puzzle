@@ -5,40 +5,52 @@ import 'package:web/src/jigsaw_puzzle_piece_side.dart';
 import 'package:web/src/jigsaw_puzzle_piece_side_type.dart';
 
 class JigsawPuzzlePiece {
-  List<JigsawPuzzlePieceSide> sides = List<JigsawPuzzlePieceSide>(4);
+  final List<JigsawPuzzlePieceSide> sides = List<JigsawPuzzlePieceSide>(4);
+
+  final JigsawPuzzle puzzle;
 
   static final Random _rand = Random();
+  int sourceOffsetX, sourceOffsetY, sourceHeight, sourceWidth;
+  Point piece;
+  int get index => (piece.x * puzzle.height) + piece.y;
+  num displayOffsetX, displayOffsetY;
+  bool selected = false;
+  int zIndex;
 
-  JigsawPuzzlePiece(JigsawPuzzle puzzle, int x, int y) {
-    JigsawPuzzlePieceSide side;
-    if(y==0) {
-      side = JigsawPuzzlePieceSide(JigsawPuzzlePieceSideType.Flat, true);
-    } else {
-      var upperPieceLowerSide = puzzle.pieces[x][y-1].sides[2];
-      side = JigsawPuzzlePieceSide(upperPieceLowerSide.type, !upperPieceLowerSide.inverted);
-    }
-    sides[0] = side;
+  Rectangle _sourceRectangle, _displayRectangle;
+  Rectangle get sourceRectangle => _sourceRectangle ??=
+      Rectangle(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
+  Rectangle get displayRectangle => _displayRectangle ??=
+      Rectangle(displayOffsetX, displayOffsetY, sourceWidth, sourceHeight);
 
-    if(puzzle.width==x+1) {
-      side = JigsawPuzzlePieceSide(JigsawPuzzlePieceSideType.Flat, true);
-    } else {
-      side = JigsawPuzzlePieceSide(JigsawPuzzlePieceSideType.Curvy1, _rand.nextBool());
-    }
-    sides[1] = side;
+  JigsawPuzzlePiece get leftNeighbor => piece.x > 0 ? puzzle.pieces[index - 1] : null;
+  JigsawPuzzlePiece get rightNeighbor =>
+      piece.x < puzzle.width ? puzzle.pieces[index + 1] : null;
+  JigsawPuzzlePiece get topNeighbor =>
+      piece.y > 0 ? puzzle.pieces[index - puzzle.width] : null;
+  JigsawPuzzlePiece get bottomNeighbor =>
+      piece.y < puzzle.height ? puzzle.pieces[index + puzzle.width] : null;
 
-    if(puzzle.height==y+1) {
-      side = JigsawPuzzlePieceSide(JigsawPuzzlePieceSideType.Flat, true);
-    } else {
-      side = JigsawPuzzlePieceSide(JigsawPuzzlePieceSideType.Curvy1, _rand.nextBool());
-    }
-    sides[2] = side;
+  JigsawPuzzlePiece(this.puzzle, this.piece,
+      {int offsetX = -1, int offsetY = -1}) {
+    sourceWidth = (puzzle.imageWidth / puzzle.width).floor();
+    sourceHeight = (puzzle.imageHeight / puzzle.height).floor();
+    sourceOffsetX = (sourceWidth * piece.x).floor();
+    sourceOffsetY = (sourceHeight * piece.y).floor();
+    zIndex = index;
 
-    if(x==0) {
-      side = JigsawPuzzlePieceSide(JigsawPuzzlePieceSideType.Flat, true);
+    if (offsetX == -1) {
+      displayOffsetX = sourceOffsetX;
     } else {
-      var leftPieceRightSide = puzzle.pieces[x-1][y].sides[1];
-      side = JigsawPuzzlePieceSide(leftPieceRightSide.type, !leftPieceRightSide.inverted);
+      displayOffsetX = offsetX;
     }
-    sides[3] = side;
+    if (offsetY == -1) {
+      displayOffsetY = sourceOffsetY;
+    } else {
+      displayOffsetY = offsetY;
+    }
   }
+  bool containsPoint(Point p)=>
+      displayRectangle.containsPoint(p);
+
 }
